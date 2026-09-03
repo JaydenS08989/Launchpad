@@ -14,18 +14,53 @@ import {
 import { PRODUCT } from "@/lib";
 import type { ReactNode } from "react";
 import { useSignOut } from "@/hooks";
+import { useFeatureFlags } from "@/contexts";
 const nav = [
-  [LayoutDashboard, "Overview", "/dashboard"],
-  [PanelsTopLeft, "Sites", "/dashboard/sites"],
-  [ContactRound, "CRM", "/dashboard/crm"],
-  [BookOpen, "CMS", "/dashboard/cms"],
-  [FileText, "Forms", "/dashboard/forms"],
-  [Globe2, "Domains", "/dashboard/domains"],
-  [BarChart3, "Analytics", "/dashboard/analytics"],
-  [Code2, "Developer", "/dashboard/developer"],
+  {
+    icon: LayoutDashboard,
+    label: "Overview",
+    href: "/dashboard",
+    available: true,
+  },
+  { icon: PanelsTopLeft, label: "Sites", href: "/dashboard", available: true },
+  {
+    icon: ContactRound,
+    label: "CRM",
+    href: "/dashboard/crm",
+    available: false,
+  },
+  { icon: BookOpen, label: "CMS", href: "/dashboard/cms", available: true },
+  {
+    icon: FileText,
+    label: "Forms",
+    href: "/dashboard/forms",
+    available: false,
+  },
+  {
+    icon: Globe2,
+    label: "Domains",
+    href: "/dashboard/domains",
+    available: false,
+  },
 ] as const;
 export function AppShell({ children }: { children: ReactNode }) {
   const { signOut, signingOut } = useSignOut();
+  const flags = useFeatureFlags();
+  const navigation = [
+    ...nav,
+    {
+      icon: BarChart3,
+      label: "Analytics",
+      href: "/dashboard/analytics",
+      available: flags.analytics,
+    },
+    {
+      icon: Code2,
+      label: "Developer",
+      href: "/dashboard/developer",
+      available: flags.developerMode,
+    },
+  ];
   return (
     <div className="min-h-screen bg-[#f7f7fa]">
       <aside className="fixed inset-y-0 w-60 border-r border-zinc-200 bg-white p-4">
@@ -39,16 +74,31 @@ export function AppShell({ children }: { children: ReactNode }) {
           {PRODUCT.name}
         </Link>
         <nav className="space-y-1">
-          {nav.map(([Icon, label, href]) => (
-            <Link
-              key={href}
-              href={href}
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-zinc-600 hover:bg-zinc-100 hover:text-zinc-950"
-            >
-              <Icon size={17} />
-              {label}
-            </Link>
-          ))}
+          {navigation.map(({ icon: Icon, label, href, available }) =>
+            available ? (
+              <Link
+                key={label}
+                href={href}
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-zinc-600 hover:bg-zinc-100 hover:text-zinc-950"
+              >
+                <Icon size={17} />
+                {label}
+              </Link>
+            ) : (
+              <span
+                key={label}
+                aria-disabled="true"
+                title={`${label} is not enabled`}
+                className="flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2 text-sm text-zinc-400"
+              >
+                <Icon size={17} />
+                {label}
+                <span className="ml-auto text-[10px] font-medium uppercase tracking-wide">
+                  Soon
+                </span>
+              </span>
+            ),
+          )}
         </nav>
         <div className="absolute inset-x-4 bottom-4">
           <Link
