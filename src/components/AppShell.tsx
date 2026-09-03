@@ -11,7 +11,7 @@ import {
   Search,
   Settings,
 } from "lucide-react";
-import { PRODUCT } from "@/lib/product";
+import { PRODUCT } from "@/lib";
 import type { ReactNode } from "react";
 const nav = [
   [LayoutDashboard, "Overview", "/dashboard"],

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canContain, editorDocumentSchema } from "./editor-schema";
+import { canContain, editorDocumentSchema } from "./index";
 describe("editor schema", () => {
   it("enforces layout constraints", () => {
     expect(canContain("section", "container")).toBe(true);

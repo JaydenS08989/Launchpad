@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { EditorDocument, EditorNode } from "@/lib/editor-schema";
+import type { EditorDocument, EditorNode } from "@/lib";
 type Viewport = "desktop" | "tablet" | "mobile";
 type Snapshot = { document: EditorDocument };
 type State = {

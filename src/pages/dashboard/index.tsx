@@ -1,22 +1,19 @@
 import Link from "next/link";
-import {
-  ArrowUpRight,
-  Globe2,
-  MoreHorizontal,
-  Plus,
-  Rocket,
-  Users,
-} from "lucide-react";
-import { AppShell } from "@/components/AppShell";
+import { Globe2, Plus, Rocket, Users } from "lucide-react";
+import { AppShell } from "@/components";
+import { useSites } from "@/hooks";
+
 export default function Dashboard() {
+  const { sites, ready, removeSite } = useSites();
+  const published = sites.filter(({ status }) => status === "published").length;
   return (
     <AppShell>
       <div className="mx-auto max-w-7xl p-8">
         <div className="flex items-end justify-between">
           <div>
-            <p className="mb-1 text-sm text-zinc-500">Thursday, 3 September</p>
+            <p className="mb-1 text-sm text-zinc-500">Your workspace</p>
             <h1 className="text-3xl font-semibold tracking-tight">
-              Good afternoon, Jamie
+              Good afternoon
             </h1>
           </div>
           <Link
@@ -31,8 +28,8 @@ export default function Dashboard() {
           <Metric
             icon={Globe2}
             label="Live sites"
-            value="1"
-            note="All systems operational"
+            value={String(published)}
+            note={published ? "Published and available" : "No published sites"}
           />
           <Metric
             icon={Users}
@@ -49,73 +46,61 @@ export default function Dashboard() {
         </section>
         <div className="mt-10 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Your sites</h2>
-          <Link
-            href="/dashboard/sites"
-            className="text-sm font-medium text-brand-600"
-          >
-            View all
-          </Link>
         </div>
-        <section className="mt-4 overflow-hidden rounded-xl border border-zinc-200 bg-white">
-          <div className="grid grid-cols-[220px_1fr_auto] gap-6 p-4">
-            <div className="grid h-32 place-items-center rounded-lg bg-gradient-to-br from-indigo-100 to-orange-50">
-              <span className="text-xl font-semibold text-indigo-950">
-                Northstar Studio
-              </span>
-            </div>
-            <div className="py-2">
-              <div className="flex items-center gap-2">
-                <h3 className="font-semibold">Northstar Studio</h3>
-                <span className="rounded-full bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">
-                  Published
-                </span>
-              </div>
-              <p className="mt-2 text-sm text-zinc-500">
-                Edited a few moments ago · launchpad.site/northstar
-              </p>
-              <div className="mt-7 flex gap-2">
-                <Link
-                  href="/editor/northstar"
-                  className="rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white"
-                >
-                  Edit site
-                </Link>
-                <button className="rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium">
-                  Manage site
-                </button>
-              </div>
-            </div>
-            <button
-              aria-label="More site actions"
-              className="size-9 rounded-lg hover:bg-zinc-100"
-            >
-              <MoreHorizontal className="m-auto" size={18} />
-            </button>
-          </div>
-        </section>
-        <section className="mt-8 grid grid-cols-2 gap-5">
-          <div className="rounded-xl border border-zinc-200 bg-white p-5">
-            <h2 className="font-semibold">Get your site ready</h2>
-            <p className="mt-1 text-sm text-zinc-500">
-              Two recommended steps remain.
+        {!ready ? (
+          <div className="mt-4 h-44 animate-pulse rounded-xl bg-zinc-200" />
+        ) : sites.length ? (
+          <section className="mt-4 divide-y divide-zinc-100 overflow-hidden rounded-xl border border-zinc-200 bg-white">
+            {sites.map((site) => (
+              <article key={site.id} className="flex items-center gap-5 p-4">
+                <div className="grid h-24 w-36 place-items-center rounded-lg bg-gradient-to-br from-indigo-100 to-orange-50 text-sm font-semibold text-indigo-950">
+                  {site.name}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="truncate font-semibold">{site.name}</h3>
+                    <span className="rounded-full bg-amber-50 px-2 py-1 text-xs font-medium capitalize text-amber-700">
+                      {site.status}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm text-zinc-500">
+                    Edited{" "}
+                    {new Date(site.updatedAt).toLocaleDateString("en-GB")}
+                  </p>
+                  <div className="mt-4 flex gap-2">
+                    <Link
+                      href={`/editor/${site.id}`}
+                      className="rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white"
+                    >
+                      Edit site
+                    </Link>
+                    <button
+                      onClick={() => removeSite(site.id)}
+                      className="rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-red-600"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </section>
+        ) : (
+          <section className="mt-4 rounded-xl border border-dashed border-zinc-300 bg-white px-6 py-16 text-center">
+            <Globe2 className="mx-auto text-zinc-400" />
+            <h3 className="mt-4 font-semibold">Create your first site</h3>
+            <p className="mt-2 text-sm text-zinc-500">
+              Choose a professionally designed template or begin with a blank
+              canvas.
             </p>
-            <div className="mt-5 h-2 rounded-full bg-zinc-100">
-              <div className="h-full w-2/3 rounded-full bg-brand-500" />
-            </div>
-            <button className="mt-5 flex items-center gap-1 text-sm font-medium text-brand-600">
-              Review recommendations <ArrowUpRight size={15} />
-            </button>
-          </div>
-          <div className="rounded-xl border border-zinc-200 bg-white p-5">
-            <h2 className="font-semibold">Recent activity</h2>
-            <div className="mt-4 border-l-2 border-indigo-100 pl-4">
-              <p className="text-sm font-medium">Site draft saved</p>
-              <p className="text-xs text-zinc-500">
-                Northstar Studio · a few moments ago
-              </p>
-            </div>
-          </div>
-        </section>
+            <Link
+              href="/templates"
+              className="mt-5 inline-flex rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white"
+            >
+              Browse templates
+            </Link>
+          </section>
+        )}
       </div>
     </AppShell>
   );

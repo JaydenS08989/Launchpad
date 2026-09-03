@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import {
   ChevronLeft,
@@ -12,86 +12,10 @@ import {
   Tablet,
   Undo2,
 } from "lucide-react";
-import { useRouter } from "next/router";
-import type { EditorDocument, EditorNode } from "@/lib/editor-schema";
-import { editorDocumentSchema } from "@/lib/editor-schema";
-import { useEditorStore } from "@/stores/editor";
-const base = (): EditorDocument => {
-  const now = new Date().toISOString();
-  return {
-    schemaVersion: 1,
-    pageId: "home",
-    rootId: "root",
-    updatedAt: now,
-    nodes: {
-      root: {
-        id: "root",
-        type: "section",
-        parentId: null,
-        children: ["container"],
-        props: {},
-        styles: { desktop: { background: "#f4f1ff" } },
-        accessibility: { hidden: false },
-      },
-      container: {
-        id: "container",
-        type: "container",
-        parentId: "root",
-        children: ["heading", "text", "button"],
-        props: {},
-        styles: { desktop: {} },
-        accessibility: { hidden: false },
-      },
-      heading: {
-        id: "heading",
-        type: "heading",
-        parentId: "container",
-        children: [],
-        props: { text: "Build something remarkable." },
-        styles: { desktop: {} },
-        accessibility: { hidden: false },
-      },
-      text: {
-        id: "text",
-        type: "text",
-        parentId: "container",
-        children: [],
-        props: { text: "A thoughtful digital studio for ambitious ideas." },
-        styles: { desktop: {} },
-        accessibility: { hidden: false },
-      },
-      button: {
-        id: "button",
-        type: "button",
-        parentId: "container",
-        children: [],
-        props: { text: "Start a project" },
-        styles: { desktop: {} },
-        accessibility: { hidden: false },
-      },
-    },
-  };
-};
+import type { EditorDocument, EditorNode } from "@/lib";
+import { useEditor } from "@/hooks";
 export default function Editor() {
-  const router = useRouter(),
-    siteId = String(router.query.siteId ?? "site");
-  const s = useEditorStore();
-  useEffect(() => {
-    if (!router.isReady) return;
-    const raw = localStorage.getItem(`launchpad:site:${siteId}`);
-    const parsed = raw ? editorDocumentSchema.safeParse(JSON.parse(raw)) : null;
-    s.setDocument(parsed?.success ? parsed.data : base());
-  }, [router.isReady, siteId]);
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "z") {
-        e.preventDefault();
-        e.shiftKey ? s.redo() : s.undo();
-      }
-    };
-    addEventListener("keydown", handler);
-    return () => removeEventListener("keydown", handler);
-  }, [s.undo, s.redo]);
+  const s = useEditor();
   const selected = s.selectedId && s.document?.nodes[s.selectedId];
   const width = { desktop: "100%", tablet: "768px", mobile: "390px" }[
     s.viewport
@@ -115,14 +39,7 @@ export default function Editor() {
       accessibility: { hidden: false },
     });
   };
-  const save = () => {
-    if (!s.document) return;
-    localStorage.setItem(
-      `launchpad:site:${siteId}`,
-      JSON.stringify(s.document),
-    );
-    s.markSaved();
-  };
+
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-zinc-100">
       <header className="flex h-14 shrink-0 items-center justify-between border-b border-zinc-200 bg-white px-3">
@@ -131,7 +48,9 @@ export default function Editor() {
             <ChevronLeft size={20} />
           </Link>
           <div>
-            <p className="text-sm font-semibold">Northstar Studio</p>
+            <p className="text-sm font-semibold">
+              {s.site?.name ?? "Untitled site"}
+            </p>
             <p className="flex items-center gap-1 text-[11px] text-zinc-500">
               <Cloud size={11} />
               {s.dirty ? "Unsaved changes" : "Saved"}
@@ -168,7 +87,7 @@ export default function Editor() {
             Preview
           </button>
           <button
-            onClick={save}
+            onClick={s.save}
             className="flex items-center gap-2 rounded-lg border border-zinc-200 px-3 py-2 text-sm"
           >
             <Save size={15} />
