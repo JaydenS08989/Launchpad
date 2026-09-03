@@ -8,7 +8,7 @@ export function useEditor() {
   const router = useRouter();
   const siteId = String(router.query.siteId ?? "");
   const editor = useEditorStore();
-  const { getSite, updateSite } = useSites();
+  const { getSite, updateSite, publishSite, isPublishing } = useSites();
   useEffect(() => {
     if (!router.isReady) return;
     const site = getSite(siteId);
@@ -34,5 +34,18 @@ export function useEditor() {
       editor.markSaved,
     );
   }, [editor.document, editor.markSaved, siteId, updateSite]);
-  return { ...editor, siteId, site: getSite(siteId), save };
+  const publish = useCallback(async () => {
+    if (!editor.document || !siteId) return;
+    await updateSite(siteId, { document: JSON.stringify(editor.document) });
+    editor.markSaved();
+    await publishSite(siteId);
+  }, [editor.document, editor.markSaved, publishSite, siteId, updateSite]);
+  return {
+    ...editor,
+    siteId,
+    site: getSite(siteId),
+    save,
+    publish,
+    isPublishing,
+  };
 }

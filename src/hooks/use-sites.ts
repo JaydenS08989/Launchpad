@@ -65,6 +65,26 @@ export function useSites() {
         (current) => current?.filter((site) => site.id !== id) ?? [],
       ),
   });
+  const publish = useMutation({
+    mutationFn: async (id: string) =>
+      request(`${PRODUCT.apiBase}/sites/${id}/publish`, { method: "POST" }),
+    onSuccess: (_, id) =>
+      client.setQueryData<Site[]>(key, (current) =>
+        current?.map((site) =>
+          site.id === id ? { ...site, status: "published" } : site,
+        ),
+      ),
+  });
+  const unpublish = useMutation({
+    mutationFn: async (id: string) =>
+      request(`${PRODUCT.apiBase}/sites/${id}/unpublish`, { method: "POST" }),
+    onSuccess: (_, id) =>
+      client.setQueryData<Site[]>(key, (current) =>
+        current?.map((site) =>
+          site.id === id ? { ...site, status: "draft" } : site,
+        ),
+      ),
+  });
   const getSite = useCallback(
     (id: string) => query.data?.find((site) => site.id === id),
     [query.data],
@@ -82,5 +102,8 @@ export function useSites() {
     ) => update.mutateAsync({ id, patch }),
     getSite,
     isCreating: create.isPending,
+    publishSite: publish.mutateAsync,
+    unpublishSite: unpublish.mutateAsync,
+    isPublishing: publish.isPending,
   };
 }

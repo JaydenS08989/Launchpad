@@ -4,7 +4,7 @@ import { AppShell } from "@/components";
 import { useSites } from "@/hooks";
 
 export default function Dashboard() {
-  const { sites, ready, removeSite } = useSites();
+  const { sites, ready, removeSite, publishSite, unpublishSite } = useSites();
   const published = sites.filter(({ status }) => status === "published").length;
   return (
     <AppShell>
@@ -79,6 +79,16 @@ export default function Dashboard() {
                       className="rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-red-600"
                     >
                       Delete
+                    </button>
+                    <button
+                      onClick={() =>
+                        void (site.status === "published"
+                          ? unpublishSite(site.id)
+                          : publishSite(site.id))
+                      }
+                      className="rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium"
+                    >
+                      {site.status === "published" ? "Unpublish" : "Publish"}
                     </button>
                   </div>
                 </div>

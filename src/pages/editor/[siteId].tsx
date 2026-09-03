@@ -82,10 +82,23 @@ export default function Editor() {
           })}
         </div>
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-2 rounded-lg border border-zinc-200 px-3 py-2 text-sm">
+          <a
+            href={
+              s.site?.status === "published" ? `/site/${s.siteId}` : undefined
+            }
+            target="_blank"
+            rel="noreferrer"
+            aria-disabled={s.site?.status !== "published"}
+            title={
+              s.site?.status === "published"
+                ? "Open published site"
+                : "Publish the site before previewing it"
+            }
+            className="flex items-center gap-2 rounded-lg border border-zinc-200 px-3 py-2 text-sm aria-disabled:cursor-not-allowed aria-disabled:opacity-40"
+          >
             <Eye size={15} />
             Preview
-          </button>
+          </a>
           <button
             onClick={s.save}
             className="flex items-center gap-2 rounded-lg border border-zinc-200 px-3 py-2 text-sm"
@@ -93,8 +106,12 @@ export default function Editor() {
             <Save size={15} />
             Save
           </button>
-          <button className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white">
-            Publish
+          <button
+            onClick={() => void s.publish()}
+            disabled={s.isPublishing}
+            className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+          >
+            {s.isPublishing ? "Publishing…" : "Publish"}
           </button>
         </div>
       </header>
