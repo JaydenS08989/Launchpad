@@ -18,7 +18,7 @@ export function useEditor() {
     editor.setDocument(
       parsed?.success ? parsed.data : createTemplateDocument("blank"),
     );
-  }, [router.isReady, siteId]);
+  }, [router.isReady, siteId, getSite, editor.setDocument]);
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
       if (!(event.metaKey || event.ctrlKey) || event.key !== "z") return;
@@ -30,8 +30,9 @@ export function useEditor() {
   }, [editor.redo, editor.undo]);
   const save = useCallback(() => {
     if (!editor.document || !siteId) return;
-    updateSite(siteId, { document: JSON.stringify(editor.document) });
-    editor.markSaved();
+    void updateSite(siteId, { document: JSON.stringify(editor.document) }).then(
+      editor.markSaved,
+    );
   }, [editor.document, editor.markSaved, siteId, updateSite]);
   return { ...editor, siteId, site: getSite(siteId), save };
 }

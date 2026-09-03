@@ -11,9 +11,9 @@ export default function Templates() {
   const { createSite } = useSites();
   const { query, setQuery, category, setCategory, filteredTemplates } =
     useTemplateBrowser();
-  const useTemplate = (templateId: string) => {
-    const site = createSite(templateId);
-    void router.push(`/editor/${site.id}`);
+  const useTemplate = async (templateId: string) => {
+    const site = await createSite(templateId);
+    await router.push(`/editor/${site.id}`);
   };
   return (
     <main className="min-h-screen bg-white">
@@ -66,7 +66,7 @@ export default function Templates() {
                     size={52}
                   />
                   <button
-                    onClick={() => useTemplate(template.id)}
+                    onClick={() => void useTemplate(template.id)}
                     className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100"
                   >
                     Use template
