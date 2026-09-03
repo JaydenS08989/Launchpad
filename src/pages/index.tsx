@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 export default function Index() {
   const router = useRouter();
   useEffect(() => {
-    void router.replace("/dashboard");
+    void router.replace("/login");
   }, [router]);
   return null;
 }

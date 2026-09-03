@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { PRODUCT } from "@/lib";
 import type { ReactNode } from "react";
+import { useSignOut } from "@/hooks";
 const nav = [
   [LayoutDashboard, "Overview", "/dashboard"],
   [PanelsTopLeft, "Sites", "/dashboard/sites"],
@@ -24,6 +25,7 @@ const nav = [
   [Code2, "Developer", "/dashboard/developer"],
 ] as const;
 export function AppShell({ children }: { children: ReactNode }) {
+  const { signOut, signingOut } = useSignOut();
   return (
     <div className="min-h-screen bg-[#f7f7fa]">
       <aside className="fixed inset-y-0 w-60 border-r border-zinc-200 bg-white p-4">
@@ -72,8 +74,11 @@ export function AppShell({ children }: { children: ReactNode }) {
             />
           </div>
           <button
+            onClick={signOut}
+            disabled={signingOut}
             className="grid size-9 place-items-center rounded-full bg-zinc-900 text-sm font-medium text-white"
-            aria-label="Account menu"
+            aria-label="Sign out"
+            title="Sign out"
           >
             JD
           </button>
