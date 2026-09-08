@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "generator": "Tripo MCP",
+  "textureResolution": 4096,
+  "format": "glb",
+  "license": "Project-owned generated assets only",
+  "assets": [
+    { "id": "hero_mara", "kind": "character", "file": "assets/tripo/hero_mara.glb", "required": true },
+    { "id": "pedestrian_female", "kind": "character", "file": "assets/tripo/pedestrian_female.glb", "required": true },
+    { "id": "pedestrian_male", "kind": "character", "file": "assets/tripo/pedestrian_male.glb", "required": true },
+    { "id": "convertible", "kind": "vehicle", "file": "assets/tripo/convertible.glb", "required": true },
+    { "id": "sedan", "kind": "vehicle", "file": "assets/tripo/sedan.glb", "required": true },
+    { "id": "art_deco_hotel", "kind": "architecture", "file": "assets/tripo/art_deco_hotel.glb", "required": true },
+    { "id": "pastel_apartment", "kind": "architecture", "file": "assets/tripo/pastel_apartment.glb", "required": true },
+    { "id": "convenience_store", "kind": "interior", "file": "assets/tripo/convenience_store.glb", "required": true },
+    { "id": "motel_balcony", "kind": "architecture", "file": "assets/tripo/motel_balcony.glb", "required": true },
+    { "id": "rooftop_dressing", "kind": "environment", "file": "assets/tripo/rooftop_dressing.glb", "required": true },
+    { "id": "royal_palm", "kind": "vegetation", "file": "assets/tripo/royal_palm.glb", "required": true },
+    { "id": "street_dressing", "kind": "environment", "file": "assets/tripo/street_dressing.glb", "required": true }
+  ]
+}
