@@ -1,0 +1,1 @@
+{"weapons":[{"id":"handgun","damage":25,"fireRate":4,"magazine":15,"reserve":75,"recoil":0.35},{"id":"shotgun","damage":72,"fireRate":0.9,"magazine":6,"reserve":30,"recoil":1.1},{"id":"compact","damage":16,"fireRate":10,"magazine":28,"reserve":140,"recoil":0.22}]}
