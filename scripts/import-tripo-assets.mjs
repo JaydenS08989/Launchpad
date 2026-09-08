@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { copyFile, mkdir, readFile, stat } from 'node:fs/promises';
-import { basename, dirname, join, resolve } from 'node:path';
+import { basename, join, resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
 const source = process.argv[2] && resolve(process.argv[2]);

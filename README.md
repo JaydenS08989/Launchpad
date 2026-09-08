@@ -21,6 +21,7 @@ Open `http://localhost:4173` in a current WebGPU-capable desktop browser. WebGL2
 | Right mouse | Aim |
 | Left mouse | Fire |
 | R | Reload |
+| Tab | Cycle handgun, shotgun, and compact automatic weapon |
 | N | Cycle time of day |
 | P | Download a PNG screenshot of the current game view |
 
