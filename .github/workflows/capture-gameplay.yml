@@ -35,6 +35,8 @@ jobs:
           if old_init not in text:
               raise SystemExit('Expected PlayCanvas double-init sequence not found')
           text = text.replace(old_init, new_init, 1)
+          text = text.replace("this.velocity.lerp(target,1-Math.exp(-damp*dt))", "this.velocity.lerp(this.velocity,target,1-Math.exp(-damp*dt))", 1)
+          text = text.replace("this.pos.lerp(desired,1-Math.exp(-8*dt))", "this.pos.lerp(this.pos,desired,1-Math.exp(-8*dt))", 1)
           marker = "<script>\n'use strict';"
           shim = "<script>\nif(!pc.Color.fromString)pc.Color.fromString=value=>value instanceof pc.Color?value.clone():typeof value==='string'?new pc.Color().fromString(value):Array.isArray(value)?new pc.Color(value[0]??1,value[1]??1,value[2]??1,value[3]??1):value&&typeof value==='object'?new pc.Color(value.r??1,value.g??1,value.b??1,value.a??1):new pc.Color(1,1,1,1);\n'use strict';"
           if marker not in text:
@@ -70,15 +72,7 @@ jobs:
           const debug = () => page.evaluate(() => {
             const g = Game.instance;
             const vec = v => v ? {x:v.x,y:v.y,z:v.z} : null;
-            return {
-              player: vec(g?.player?.entity?.getPosition()),
-              camera: vec(g?.camera?.entity?.getPosition()),
-              cameraForward: vec(g?.camera?.entity?.forward),
-              renderComponents: g?.app?.root?.findComponents?.('render')?.length ?? null,
-              enabledRenderComponents: g?.app?.root?.findComponents?.('render')?.filter(r=>r.enabled && r.entity.enabled)?.length ?? null,
-              cameras: g?.app?.root?.findComponents?.('camera')?.length ?? null,
-              drawCalls: g?.app?.stats?.drawCalls?.total ?? null
-            };
+            return {player:vec(g?.player?.entity?.getPosition()),camera:vec(g?.camera?.entity?.getPosition()),cameraForward:vec(g?.camera?.entity?.forward),renderComponents:g?.app?.root?.findComponents?.('render')?.length??null,enabledRenderComponents:g?.app?.root?.findComponents?.('render')?.filter(r=>r.enabled&&r.entity.enabled)?.length??null,cameras:g?.app?.root?.findComponents?.('camera')?.length??null,drawCalls:g?.app?.stats?.drawCalls?.total??null};
           });
 
           const before = await readUi();
