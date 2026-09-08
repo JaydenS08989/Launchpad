@@ -1,0 +1,1 @@
+{"archetypes":{"civilian":{"walkSpeed":1.4,"runSpeed":4.3,"visionRange":22,"hearingRange":35},"criminal":{"walkSpeed":1.5,"runSpeed":4.5,"visionRange":28,"hearingRange":42},"police":{"walkSpeed":1.6,"runSpeed":4.8,"visionRange":38,"hearingRange":55}},"states":["idle","wander","converse","observe","usePhone","panic","flee","investigate","combat","surrender","drive"]}
