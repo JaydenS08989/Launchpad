@@ -24,18 +24,27 @@ jobs:
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
 
-      - name: Apply capture-only PlayCanvas init compatibility patch
+      - name: Apply capture-only PlayCanvas compatibility patches
         run: |
           python3 - <<'PY'
           from pathlib import Path
           path = Path('index.html')
           text = path.read_text()
-          old = "this.app=new pc.Application(this.canvas);await this.app.init({graphicsDeviceOptions:{deviceTypes:['webgpu','webgl2'],antialias:true,alpha:false},componentSystems:[pc.RenderComponentSystem,pc.CameraComponentSystem,pc.LightComponentSystem]});"
-          new = "this.app=new pc.Application(this.canvas,{graphicsDeviceOptions:{antialias:true,alpha:false}});"
-          if old not in text:
+
+          old_init = "this.app=new pc.Application(this.canvas);await this.app.init({graphicsDeviceOptions:{deviceTypes:['webgpu','webgl2'],antialias:true,alpha:false},componentSystems:[pc.RenderComponentSystem,pc.CameraComponentSystem,pc.LightComponentSystem]});"
+          new_init = "this.app=new pc.Application(this.canvas,{graphicsDeviceOptions:{antialias:true,alpha:false}});"
+          if old_init not in text:
               raise SystemExit('Expected PlayCanvas double-init sequence not found')
-          path.write_text(text.replace(old, new, 1))
-          print('Applied runtime-only PlayCanvas initialization patch')
+          text = text.replace(old_init, new_init, 1)
+
+          marker = "<script>\n'use strict';"
+          shim = "<script>\nif(!pc.Color.fromString)pc.Color.fromString=hex=>new pc.Color().fromString(hex);\n'use strict';"
+          if marker not in text:
+              raise SystemExit('Expected main script marker not found')
+          text = text.replace(marker, shim, 1)
+
+          path.write_text(text)
+          print('Applied runtime-only PlayCanvas compatibility patches')
           PY
 
       - name: Start game server
