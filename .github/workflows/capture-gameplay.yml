@@ -38,7 +38,7 @@ jobs:
 
       - name: Play and capture screenshot
         run: |
-          cat > /tmp/capture.mjs <<'EOF'
+          cat > capture.mjs <<'EOF'
           import { chromium } from 'playwright';
           import fs from 'node:fs';
 
@@ -55,22 +55,28 @@ jobs:
           const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
           page.on('console', msg => console.log(`[browser:${msg.type()}] ${msg.text()}`));
           page.on('pageerror', err => console.error(`[pageerror] ${err.message}`));
+          page.on('requestfailed', req => console.error(`[requestfailed] ${req.url()} :: ${req.failure()?.errorText}`));
 
           await page.goto('http://127.0.0.1:4173/', { waitUntil: 'domcontentloaded', timeout: 60000 });
-          await page.waitForTimeout(7000);
+          await page.waitForTimeout(8000);
 
-          const before = await page.evaluate(() => ({
+          const readState = () => page.evaluate(() => ({
             loading: document.querySelector('#loading')?.className,
             title: document.querySelector('#title')?.className,
             hud: document.querySelector('#hud')?.className,
-            compat: getComputedStyle(document.querySelector('#compat')).display
+            compat: getComputedStyle(document.querySelector('#compat')).display,
+            mission: document.querySelector('.mission')?.innerText,
+            area: document.querySelector('.area')?.innerText
           }));
+
+          const before = await readState();
           console.log('UI before start:', before);
+          await page.screenshot({ path: 'prestart.png', fullPage: false });
 
           await page.keyboard.press('Space');
-          await page.waitForTimeout(3500);
+          await page.waitForTimeout(4000);
 
-          // Exercise actual gameplay input before the capture.
+          // Exercise real gameplay input before capture.
           await page.keyboard.down('Shift');
           await page.keyboard.down('w');
           await page.waitForTimeout(1800);
@@ -78,27 +84,26 @@ jobs:
           await page.keyboard.up('Shift');
           await page.waitForTimeout(1200);
 
-          const after = await page.evaluate(() => ({
-            loading: document.querySelector('#loading')?.className,
-            title: document.querySelector('#title')?.className,
-            hud: document.querySelector('#hud')?.className,
-            mission: document.querySelector('.mission')?.innerText,
-            area: document.querySelector('.area')?.innerText
-          }));
+          const after = await readState();
           console.log('UI after input:', after);
-
           await page.screenshot({ path: 'gameplay.png', fullPage: false });
           fs.writeFileSync('capture-state.json', JSON.stringify({ before, after }, null, 2));
+
           await browser.close();
+          if (!String(after.hud || '').split(/\s+/).includes('on')) {
+            throw new Error(`Gameplay HUD did not become active: ${JSON.stringify(after)}`);
+          }
           EOF
-          node /tmp/capture.mjs
+          node capture.mjs
 
       - name: Upload screenshot
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: vice-horizon-gameplay-screenshot
           path: |
             gameplay.png
+            prestart.png
             capture-state.json
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 7
