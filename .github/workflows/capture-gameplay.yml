@@ -38,7 +38,16 @@ jobs:
           text = text.replace(old_init, new_init, 1)
 
           marker = "<script>\n'use strict';"
-          shim = "<script>\nif(!pc.Color.fromString)pc.Color.fromString=hex=>new pc.Color().fromString(hex);\n'use strict';"
+          shim = """<script>
+if(!pc.Color.fromString)pc.Color.fromString=value=>{
+  if(value instanceof pc.Color)return value.clone();
+  if(typeof value==='string')return new pc.Color().fromString(value);
+  if(Array.isArray(value))return new pc.Color(value[0]??1,value[1]??1,value[2]??1,value[3]??1);
+  if(value&&typeof value==='object')return new pc.Color(value.r??1,value.g??1,value.b??1,value.a??1);
+  console.warn('Unexpected color value',value);
+  return new pc.Color(1,1,1,1);
+};
+'use strict';"""
           if marker not in text:
               raise SystemExit('Expected main script marker not found')
           text = text.replace(marker, shim, 1)
@@ -102,14 +111,13 @@ jobs:
           await page.waitForFunction(() => document.querySelector('#hud')?.classList.contains('on'), null, { timeout: 10000 });
           await page.waitForTimeout(1800);
 
-          // Exercise actual gameplay input before capture.
-          await page.keyboard.down('Shift');
-          await page.keyboard.down('w');
+          await page.keyboard.down('ShiftLeft');
+          await page.keyboard.down('KeyW');
           await page.waitForTimeout(2200);
-          await page.keyboard.up('w');
-          await page.keyboard.up('Shift');
-          await page.waitForTimeout(1000);
-          await page.keyboard.press('n');
+          await page.keyboard.up('KeyW');
+          await page.keyboard.up('ShiftLeft');
+          await page.waitForTimeout(900);
+          await page.keyboard.press('KeyN');
           await page.waitForTimeout(1200);
 
           const after = await readState();
