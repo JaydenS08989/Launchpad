@@ -30,28 +30,16 @@ jobs:
           from pathlib import Path
           path = Path('index.html')
           text = path.read_text()
-
           old_init = "this.app=new pc.Application(this.canvas);await this.app.init({graphicsDeviceOptions:{deviceTypes:['webgpu','webgl2'],antialias:true,alpha:false},componentSystems:[pc.RenderComponentSystem,pc.CameraComponentSystem,pc.LightComponentSystem]});"
           new_init = "this.app=new pc.Application(this.canvas,{graphicsDeviceOptions:{antialias:true,alpha:false}});"
           if old_init not in text:
               raise SystemExit('Expected PlayCanvas double-init sequence not found')
           text = text.replace(old_init, new_init, 1)
-
           marker = "<script>\n'use strict';"
-          shim = """<script>
-if(!pc.Color.fromString)pc.Color.fromString=value=>{
-  if(value instanceof pc.Color)return value.clone();
-  if(typeof value==='string')return new pc.Color().fromString(value);
-  if(Array.isArray(value))return new pc.Color(value[0]??1,value[1]??1,value[2]??1,value[3]??1);
-  if(value&&typeof value==='object')return new pc.Color(value.r??1,value.g??1,value.b??1,value.a??1);
-  console.warn('Unexpected color value',value);
-  return new pc.Color(1,1,1,1);
-};
-'use strict';"""
+          shim = "<script>\nif(!pc.Color.fromString)pc.Color.fromString=value=>value instanceof pc.Color?value.clone():typeof value==='string'?new pc.Color().fromString(value):Array.isArray(value)?new pc.Color(value[0]??1,value[1]??1,value[2]??1,value[3]??1):value&&typeof value==='object'?new pc.Color(value.r??1,value.g??1,value.b??1,value.a??1):new pc.Color(1,1,1,1);\n'use strict';"
           if marker not in text:
               raise SystemExit('Expected main script marker not found')
           text = text.replace(marker, shim, 1)
-
           path.write_text(text)
           print('Applied runtime-only PlayCanvas compatibility patches')
           PY
